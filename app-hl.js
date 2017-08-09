@@ -103,10 +103,35 @@ function checkEmail(str){
         return false;
     }
 }
-app.post('/signup',function (req,res) {
+app.get('/signup',function (req,res) {
     let email=req.body.email,
         password=req.body.password,
         confirmation=req.body.confirmation;
+    let newRecord={
+        email:email,
+        password:password,
+    };
+    req.models.user.find({email:email},function (err,user) {
+        if (err){
+            if (checkEmail(email)){
+                if (password===confirmation){
+                    res.send(newRecord);
+                    // 注册信息填写正确，则跳转至首页，需要用户去邮箱里点击验证链接来登录到该网站。
+                }else {
+                    res.send('pwd not same');//pwd not same
+                }
+            }else {
+                res.send('email not correct');//email not correct
+            }
+        }else {
+            res.send('user already existed')//already existed email
+        }
+    });
+});
+
+app.post('/:email/:password',function (req,res) {
+    let email=req.params.email,
+        password=req.params.password;
     let newRecord={
         email:email,
         password:password,
@@ -114,28 +139,13 @@ app.post('/signup',function (req,res) {
         address:'',
         field:''
     };
-    req.models.user.find({email:email},function (err,user) {
+    req.models.user.create(newRecord,function (err,user) {
         if (err){
-            if (checkEmail(email)){
-                if (password===confirmation){
-                    req.models.user.create(newRecord,function (err,record) {
-                        if (err){
-                            res.send(false) //false when create new record
-                        }else {
-                            res.send(email) //create success
-                            // 注册信息填写正确，则跳转至首页，需要用户去邮箱里点击验证链接来登录到该网站。
-                        }
-                    })
-                }else {
-                    res.send(false);//pwd not same
-                }
-            }else {
-                res.send(false);//email not correct
-            }
+            res.send('sign up failed')
         }else {
-            res.send(false)//already existed email
+            res.send(user)
         }
-    });
+    })
 });
 //----11 点击注册按钮，就会验证该注册信息是否正确-----
 

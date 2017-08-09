@@ -114,22 +114,28 @@ app.post('/signup',function (req,res) {
         address:'',
         field:''
     };
-    if (checkEmail(email)){
-        if (password===confirmation){
-            req.models.user.create(newRecord,function (err,record) {
-                if (err){
-                    res.send(false) //false when create new record
+    req.models.user.find({email:email},function (err,user) {
+        if (err){
+            if (checkEmail(email)){
+                if (password===confirmation){
+                    req.models.user.create(newRecord,function (err,record) {
+                        if (err){
+                            res.send(false) //false when create new record
+                        }else {
+                            res.send(email) //create success
+                            // 注册信息填写正确，则跳转至首页，需要用户去邮箱里点击验证链接来登录到该网站。
+                        }
+                    })
                 }else {
-                    res.send(email) //create success
-                    // 注册信息填写正确，则跳转至首页，需要用户去邮箱里点击验证链接来登录到该网站。
+                    res.send(false);//pwd not same
                 }
-            })
+            }else {
+                res.send(false);//email not correct
+            }
         }else {
-            res.send(false);//pwd not same
+            res.send(false)//already existed email
         }
-    }else {
-        res.send(false);//email not correct
-    }
+    });
 });
 //----11 点击注册按钮，就会验证该注册信息是否正确-----
 

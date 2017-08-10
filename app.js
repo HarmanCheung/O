@@ -295,24 +295,24 @@ app.get('/signup/:email',function (req,res) {
 });
 
 app.post('/user',function (req,res) {
-    let email=req.body.email,
-        password=req.body.password,
-        name=req.body.name;
+    let data = req.body;
     let newRecord={
-        email:email,
-        password:password,
+        email:data.email,
+        password:data.password,
         company:'',
         address:'',
         field:'',
-        name:name
+        name:data.name
     };
-    req.models.user.create(newRecord,function (err,user) {
-        if (err){
-            res.send('sign up failed')
-        }else {
-            res.send(user)
-        }
-    })
+    if(req.models.user.find())
+        req.models.user.create(newRecord,function (err,rep) {
+            if (err){
+                console.log(err);
+                res.send("sign up failed!");
+            }else {
+                res.send(JSON.stringify(rep));
+            }
+        })
 });
 //----11 点击注册按钮，就会验证该注册信息是否正确-----
 

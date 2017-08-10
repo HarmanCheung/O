@@ -71,54 +71,43 @@ app.get('/category/:category',function (req,res) {
 //-------3 根据工作性质过滤职位------
 
 //------根据工作的标题(position)、公司名字(company)和职位描述(description)进行模糊搜索------
-function quchong(newarr,arr) {
-    for (let i=0;i<arr.length;i++){
-        if (arr.indexOf(arr[i])<i){
-            continue
-        }else {
-            newarr.push(arr[i])
+
+function xunhuan(resultarr,findarr) {
+    let id = [];
+    resultarr.forEach(function (key) {
+       id.push(key.id);
+    });
+    for (let i=0;i<findarr.length;i++){
+        if (id.indexOf(findarr[i].id)<0){
+            resultarr.push(findarr[i]);
         }
     }
-    return newarr;
 }
-// console.log(quchong([],[1,2,2,3]));//[1,2,3]
-app.post('/search',function (req,res) {
-   let search=req.body.search;
-   req.models.job.find({
-       or:[{id:orm.like(`%${search}%`)},
-           {position:orm.like(`%${search}%`)},
-           {description:orm.like(`%${search}%`)},
-           {tags:orm.like(`%${search}%`)},
-           {apply:orm.like(`%${search}%`)},
-           {category:orm.like(`%${search}%`)},
-           {type:orm.like(`%${search}%`)},
-           {country:orm.like(`%${search}%`)},
-           {city:orm.like(`%${search}%`)},
-           ]
-   },function (err,jobs) {
-       // res.send(jobs)
-       if(err){
-           res.send('no job is like what u searches')
-       }else {
-           let typearrAll=[],catearrAll=[],typearr=[],catearr=[];
-           for (let i=0;i<jobs.length;i++){
-               typearrAll.push(jobs[i].type);
-               catearrAll.push(jobs[i].category);
-           }
-           quchong(typearr,typearrAll);
-           quchong(catearr,catearrAll);//----不重复array of type/category
-           req.models.job.find({
-                   or:[{type:typearr},{category:catearr}]
-               },function (err,sameTypeCate) {
-                   if (err){
-                       res.send(jobs)
-                   }else {
 
-                   }
-               }
-           )
-       }
-   })
+app.get('/:search',function (req,res) {
+   let search=req.params.search;
+   let resultarr=[];
+   req.models.job.find({position:orm.like(`%${search}%`)},function (err,nearposition) {
+       xunhuan(resultarr,nearposition);
+       req.models.job.find({description:orm.like(`%${search}%`)},function (err,neardescription) {
+           xunhuan(resultarr,neardescription);
+           req.models.job.find({category:orm.like(`%${search}%`)},function (err,nearcategory) {
+               xunhuan(resultarr,nearcategory);
+               // res.send(resultarr);
+               req.models.job.find({type:orm.like(`%${search}%`)},function (err,neartype) {
+                   xunhuan(resultarr,neartype);
+                   req.models.job.find({country:orm.like(`%${search}%`)},function (err,nearcountry) {
+                       xunhuan(resultarr,nearcountry);
+                       req.models.job.find({city:orm.like(`%${search}%`)},function (err,nearcity) {
+                           xunhuan(resultarr,nearcity);
+                           res.send(resultarr);
+                       })
+                   })
+               })
+           });
+       });
+
+   });
 });
 //------根据工作的标题、公司名字和职位描述进行模糊搜索------
 
@@ -133,97 +122,68 @@ app.get('/alljobs/:id',function (req,res) {
 //------5 查看职位详情-----
 
 //----11 点击注册按钮，就会验证该注册信息是否正确-----
-function checkEmail(str){
-    let re = /^(\w-*\.*)+@(\w-?)+(\.\w{2,4})+$/;
-    if(re.test(str)){
-        return true;
-    }else{
-        return false;
-    }
-}
-app.get('/signup',function (req,res) {
-    let name=req.body.name,
-        email=req.body.email,
-        password=req.body.password,
-        confirmation=req.body.confirmation;
-    let newRecord={
-        name:name,
-        email:email,
-        password:password
-    };
+app.get('/signup/:email',function (req,res) {
+    let email=req.params.email;
     req.models.user.find({email:email},function (err,user) {
         if (err){
-            if (checkEmail(email)){
-                if (password===confirmation){
-                    res.send(newRecord);
-                    // 注册信息填写正确，则跳转至首页，需要用户去邮箱里点击验证链接来登录到该网站。
-                }else {
-                    res.send('pwd not same');//pwd not same
-                }
-            }else {
-                res.send('email not correct');//email not correct
-            }
+            res.send(email);
+            // 注册信息填写正确(no such email in database)，则跳转至首页，需要用户去邮箱里点击验证链接来登录到该网站。
         }else {
-            res.send('user already existed')//already existed email
+            res.send('existed')//already existed user email
         }
     });
 });
 
-// app.post('/:name/:email/:password',function (req,res) {
-//     let email=req.params.email,
-//         password=req.params.password,
-//         name=req.params.name;
-//     let newRecord={
-//
-//         email:email,
-//         password:password,
-//         company:'',
-//         address:'',
-//         field:'',
-//         name:name
-//     };
-//     req.models.user.create(newRecord,function (err,user) {
-//         if (err){
-//             res.send('sign up failed')
-//         }else {
-//             res.send(user)
-//         }
-//     })
-// });
+app.post('/user',function (req,res) {
+    let email=req.body.email,
+        password=req.body.password,
+        name=req.body.name;
+    let newRecord={
+        email:email,
+        password:password,
+        company:'',
+        address:'',
+        field:'',
+        name:name
+    };
+    req.models.user.create(newRecord,function (err,user) {
+        if (err){
+            res.send('sign up failed')
+        }else {
+            res.send(user)
+        }
+    })
+});
 //----11 点击注册按钮，就会验证该注册信息是否正确-----
 
 //----12 忘记密码,发送重置密码的邮件----
-// app.get('/forget',function (req,res) {
-//     let email=req.body.email;
-//     req.models.user.find({email:email} ,function (err,email) {
-//         if (err){
-//             console.log(err);
-//         }else {
-//             res.send(email)
-//         }
-//     });
-// });
+app.get('/forget/:email',function (req,res) {
+    let email=req.params.email;
+    req.models.user.find({email:email} ,function (err,email) {
+        if (err){
+            res.send('no such user')
+        }else {
+            res.send(email)
+        }
+    });
+});
 // //----12 忘记密码,发送重置密码的邮件----
 //
-// //----12 用户get邮件，并跳转到登录页面,change pwd---
-// app.put('/forget/signin/:email',function (req,res) {
-//     let email=req.params.email,
-//         password=req.body.password,
-//         confirmation=req.body.confirmation;
-//     if (password===confirmation){
-//         req.models.user.find({email:email},function (err,userinfo) {
-//             let user=userinfo[0];
-//             user.password=password;
-//             user.save(function (err) {
-//                 if (err) {
-//                     console.log('err' + err);
-//                 }else {
-//                     res.send(true)//new pwd saved
-//                 }
-//             })
-//         })
-//     }
-// });
+// //----12 用户get邮件，并verify---
+app.put('/put',function (req,res) {
+    let email = req.body.email;
+    req.models.user.find({email: email}, function (err, user) {//change pwd and save
+        user[0].password = req.body.password;
+        user[0].confirmation = req.body.confirmation;
+        user[0].save(function (err) {
+            if (err) {
+                console.log('err' + err);
+            } else {
+                res.send(user);
+            }
+        })
+    })
+});
 //----12 用户get邮件，并跳转到登录页面,change pwd---
 
 app.listen(3000,()=>{

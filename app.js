@@ -139,39 +139,7 @@ app.get('/alljobs/:id',function (req,res) {
 });
 //------5 查看职位详情-----
 
-//----11 点击注册按钮，就会验证该注册信息是否正确-----
-app.get('/signup/:email',function (req,res) {
-    let email=req.params.email;
-    req.models.user.find({email:email},function (err,user) {
-        if (err){
-            res.send(email);
-            // 注册信息填写正确(no such email in database)，则跳转至首页，需要用户去邮箱里点击验证链接来登录到该网站。
-        }else {
-            res.send('existed')//already existed user email
-        }
-    });
-});
 
-app.post('/user',function (req,res) {
-    let email=req.body.email,
-        password=req.body.password,
-        name=req.body.name;
-    let newRecord={
-        email:email,
-        password:password,
-        company:'',
-        address:'',
-        field:'',
-        name:name
-    };
-    req.models.user.create(newRecord,function (err,user) {
-        if (err){
-            res.send('sign up failed')
-        }else {
-            res.send(user)
-        }
-    })
-});
 
 //功能6：发布一个职位
 app.post('/postOneJob',function (req,res) {

@@ -59,7 +59,7 @@ app.use(orm.express("sqlite:/home/zhm/O/jobs.db", {
 
 
 //功能6：发布一个职位
-app.post('/6',function (req,res) {
+app.post('/postOneJob',function (req,res) {
     let newJob = { position: req.body.position, company:req.body.company, description:req.body.description, tags:req.body.tags, apply:req.body.apply, expiry_date:req.body.expiry_date, category:req.body.category,type:req.body.type, country:req.body.country, city:req.body.city, release_date:req.body.release_date, is_paid:req.body.is_paid, user_id:req.body.user_id};
 
     console.log(req.body);
@@ -75,7 +75,7 @@ app.post('/6',function (req,res) {
 //功能6：发布一个职位
 
 //功能7：用户查看自己创建的职位Post列表
-app.get('/7',function (req,res) {
+app.get('/checkJobList',function (req,res) {
     req.models.job.find({user_id:req.body.user_id},function (err,jobsInfo) {
         if (err){
             console.log(err);
@@ -88,7 +88,7 @@ app.get('/7',function (req,res) {
 //功能7：用户查看自己创建的职位Post列表
 
 //功能8：用户查看自己创建的职位Post详情
-app.get('/8',function (req,res) {
+app.get('/checkJob',function (req,res) {
     req.models.job.find({id:req.body.id},function (err,jobInfo) {
         if (err){
             console.log(err);
@@ -103,7 +103,7 @@ app.get('/8',function (req,res) {
 //功能9：修改账户信息
 
 //显示用户信息
-app.get('/9',function (req,res) {
+app.get('/checkUserInfo',function (req,res) {
     req.models.user.find({id:req.body.id},function (err,userInfo) {
         res.send(userInfo);
     });
@@ -111,7 +111,7 @@ app.get('/9',function (req,res) {
 //显示用户信息
 
 //接受新信息，修改数据库
-app.post('/9/1',function (req,res) {
+app.post('/reviseUserInfo',function (req,res) {
     req.models.user.find({id:req.body.id},function (err,userInfo) {
         if (err){
             console.log(err);
@@ -138,7 +138,7 @@ app.post('/9/1',function (req,res) {
 //功能9：修改账户信息
 
 //功能10：登录
-app.post('/10',function (req,res) {
+app.post('/logIn',function (req,res) {
     req.models.user.find({email:req.body.email},function (err,userPassword) {
         if (err){
             console.log(err);

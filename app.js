@@ -68,26 +68,68 @@ app.get('/alljobs',function (req,res) {
 });
 // -------1 显示所有职位--------res : [{str},{str}]
 
-// --------2 根据工作职位过滤职位-----//e.g. product manager/designer/..
-app.get('/type/:type',function (req,res) {
-    let type=req.params.type;
-    req.models.job.find({type:type} ,function (err,jobs) {
-        console.log(jobs);
-        res.send(jobs);
-    });
+// -------1.1 所有工作职位--------
+app.get('/alljobs/type',function (req,res) {
+    req.models.job.find({},function (err,jobs) {
+        let arr=[];
+        for (let i=0;i<jobs.length;i++){
+            arr.push(jobs[i].type)
+        }
+        res.send(arr);
+    })
 });
+/**["Development",
+ "Designer",
+ "Designer",
+ "Marketing",
+ "Development",
+ "Designer",
+ "Product manager",
+ "Product manager"
+ ]**/
+// -------1.2 所有工作性质--------
+app.get('/alljobs/category',function (req,res) {
+    req.models.job.find({},function (err,jobs) {
+        let arr=[];
+        for (let i=0;i<jobs.length;i++){
+            arr.push(jobs[i].category)
+        }
+        res.send(arr);
+    })
+});
+
+
 // --------2 根据工作职位过滤职位-------
-
-//-------3 根据工作性质过滤职位------//e.g. volunteer/contract/..
-app.get('/category/:category',function (req,res) {
-    let category=req.params.category;//category: name of selected category
-    req.models.job.find({category:category} ,function (err,jobs) {
-        console.log(jobs);
-        res.send(jobs);
-    });
-});
 //-------3 根据工作性质过滤职位------
-
+//-------------project 2 and 3---------------
+app.get('/alljobs/:type/:category',function (req,res) {
+    let type = req.params.type;
+    let category = req.params.category;
+    if(type === 'alltype'){
+        if(category === 'allcategory'){
+            req.models.job.find({},function (err,allJobs) {
+                res.send(allJobs);
+            });
+        }
+        else{
+            req.models.job.find({category:category},function (err,justFromCategory) {
+                res.send(justFromCategory);
+            });
+        }
+    }
+    else{
+        if(category === 'allcategory'){
+            req.models.job.find({type:type},function (err,justFromType) {
+                res.send(justFromType);
+            });
+        }
+        else{
+            req.models.job.find({type:type,category:category},function (err,fromTypeAndCateGory){
+                res.send(fromTypeAndCateGory);
+            });
+        }
+    }
+});
 //------根据工作的标题(position)、公司名字(company)和职位描述(description)进行模糊搜索------
 
 function xunhuan(resultarr,findarr) {

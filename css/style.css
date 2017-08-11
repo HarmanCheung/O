@@ -77,8 +77,8 @@ p {
 }
 
 .navbar-nav>li>a:hover,
-.navbar-nav>li>a:active,
-.navbar-nav>li>a:focus {
+/*.navbar-nav>li>a:focus ,*/
+.navbar-nav>li>a:active {
     background: none
 }
 
@@ -120,7 +120,7 @@ border-radius: 2px;
 display: inline-block;
 text-transform: uppercase;
 }
-.btn:hover, .btn:focus {
+.btn:hover{
 background-color: #3d3d3d;
 color: #fff;
 }
@@ -142,7 +142,13 @@ color: #fff;
     padding: 5px;
 }
 
-
+/*---------点击分类后增加的样式-------------*/
+.typeStyle{
+    background-color: #3d3d3d;
+}
+.categoryStyle{
+    background-color: #3d3d3d;
+}
 
 
 

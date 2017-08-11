@@ -4,7 +4,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
-app.use(express.static(__dirname+'/public'));
+app.use(express.static(__dirname+'/'));
 
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
@@ -19,7 +19,7 @@ let orm = require('orm');
         pool: true,
     },
 };*/
-orm.connect('sqlite:/home/zhm/O/jobs.db', function(err, db) {
+orm.connect('sqlite:/home/coco/WebstormProjects/team/O/jobs.db', function(err, db) {
     if (err) {
         return console.error('Connection error: ' + err);
     }
@@ -28,7 +28,7 @@ orm.connect('sqlite:/home/zhm/O/jobs.db', function(err, db) {
     }
 });
 
-app.use(orm.express("sqlite:/home/zhm/O/jobs.db", {
+app.use(orm.express("sqlite:/home/coco/WebstormProjects/team/O/jobs.db", {
     define: function (db, models, next) {
         models.user = db.define("user",{
             id:Number,
@@ -39,11 +39,11 @@ app.use(orm.express("sqlite:/home/zhm/O/jobs.db", {
             field:String
         });
         models.job = db.define("job", {
-
+            id:Number,
             position:String,
-            company:String,
             description:String,
             tags:String,
+            apply:String,
             expiry_date:String,
             category:String,
             type:String,
@@ -52,17 +52,19 @@ app.use(orm.express("sqlite:/home/zhm/O/jobs.db", {
             release_date:String,
             is_paid:Boolean,
             user_id:Number,
-            is_showing:Boolean
         });
         next();
     }
 }));
 
+//----加载页面----
+app.get('/',function (req,res) {
+    res.sendFile('index.html', {root: './'});
+});
 
 // -------1 显示所有职位--------
 app.get('/alljobs',function (req,res) {
     req.models.job.find({} ,function (err,job) {
-        console.log(job);
         res.send(job);
     });
 });
@@ -73,20 +75,20 @@ app.get('/alljobs/type',function (req,res) {
     req.models.job.find({},function (err,jobs) {
         let arr=[];
         for (let i=0;i<jobs.length;i++){
-            arr.push(jobs[i].type)
+            arr.push(jobs[i].type);
         }
-        res.send(arr);
+        res.send(quchong(arr));
     })
 });
-/**["Development",
- "Designer",
- "Designer",
- "Marketing",
- "Development",
- "Designer",
- "Product manager",
- "Product manager"
- ]**/
+function quchong(arr) {
+    let newArr = [];
+    arr.forEach(function(key){
+        if(newArr.indexOf(key)<0){
+            newArr.push(key);
+        }
+    });
+    return newArr;
+}
 // -------1.2 所有工作性质--------
 app.get('/alljobs/category',function (req,res) {
     req.models.job.find({},function (err,jobs) {
@@ -94,7 +96,7 @@ app.get('/alljobs/category',function (req,res) {
         for (let i=0;i<jobs.length;i++){
             arr.push(jobs[i].category)
         }
-        res.send(arr);
+        res.send(quchong(arr));
     })
 });
 
@@ -144,7 +146,7 @@ function xunhuan(resultarr,findarr) {
     }
 }
 
-app.get('/:search',function (req,res) {
+app.get('/search/:search',function (req,res) {
     let search=req.params.search;
     let resultarr=[];
     req.models.job.find({position:orm.like(`%${search}%`)},function (err,nearposition) {

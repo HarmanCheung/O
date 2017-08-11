@@ -1,0 +1,18 @@
+#toTop{
+    position:fixed;
+    bottom:50px;
+    right:50px;
+    width:50px;
+    height:50px;
+    border-radius:5px;
+    line-height: 50px;
+    text-align: center;
+    background:#b2dba1;
+    cursor:pointer;
+    font-weight:700;
+    color:#fff;
+    display:none;
+}
+#toTop:hover{
+    background:#fff;
+}

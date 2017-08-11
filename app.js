@@ -237,12 +237,11 @@ app.get('/checkUserInfo',function (req,res) {
 
 //接受新信息，修改数据库
 app.post('/reviseUserInfo',function (req,res) {
-    req.models.user.find({id:req.body.id},function (err,userInfo) {
+    req.models.user.find({email:req.body.email},function (err,userInfo) {
         if (err){
             console.log(err);
         }
         else {
-            userInfo[0].email = req.body.email;
             userInfo[0].password = req.body.password;
             userInfo[0].company = req.body.company;
             userInfo[0].address = req.body.address;

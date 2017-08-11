@@ -1,0 +1,39 @@
+
+#header_area {
+    /*background: url(../images/bg.jpg);*/
+    background-color: #209b60;
+    /*padding-top: 35px;*/
+    background-size: cover;
+    background-position: center center
+}
+@media (min-width: 768px){
+    .navbar-nav>li>a {
+        padding-top: 29px;
+        padding-bottom: -13px;
+    }
+}
+
+
+.logo {
+    margin-top: 5px;
+}
+
+.logo h2 {}
+
+.logo h2 a {
+    color: #fff;
+    text-decoration: none
+}
+
+.navbar-nav>li>a {
+    font-size: 14px;
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    text-transform: uppercase
+}
+
+.navbar-nav>li>a:hover,
+.navbar-nav>li>a:active,
+.navbar-nav>li>a:focus {
+    background: none
+}
